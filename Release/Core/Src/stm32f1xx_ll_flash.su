@@ -1,0 +1,5 @@
+../Core/Src/stm32f1xx_ll_flash.c:4:6:LL_FLASH_Wait_for_Busy	8	static
+../Core/Src/stm32f1xx_ll_flash.c:9:13:LL_FLASH_Program_TwoBtye	16	static
+../Core/Src/stm32f1xx_ll_flash.c:27:13:LL_Flash_Unlock	8	static
+../Core/Src/stm32f1xx_ll_flash.c:38:13:LL_Flash_PageErase	8	static
+../Core/Src/stm32f1xx_ll_flash.c:57:13:LL_Flash_MassErase	8	static
