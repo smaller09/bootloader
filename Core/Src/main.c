@@ -140,7 +140,7 @@ int main(void)
   uint8_t ch = 0;
   uint8_t lastCh = 0;
   uint8_t NotSynced = 1;
-  uint16_t address = 0;
+  uint32_t address = 0;
 
   uint8_t *bufPtr;
   uint16_t length;
