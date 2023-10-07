@@ -27,6 +27,7 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
+
 #include "stm32f1xx_ll_rcc.h"
 #include "stm32f1xx_ll_bus.h"
 #include "stm32f1xx_ll_system.h"
@@ -35,8 +36,6 @@ extern "C" {
 #include "stm32f1xx_ll_utils.h"
 #include "stm32f1xx_ll_pwr.h"
 #include "stm32f1xx_ll_dma.h"
-#include "stm32f1xx_ll_tim.h"
-#include "stm32f1xx_ll_usart.h"
 #include "stm32f1xx_ll_gpio.h"
 
 #if defined(USE_FULL_ASSERT)
@@ -71,20 +70,6 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define LED_Pin LL_GPIO_PIN_1
-#define LED_GPIO_Port GPIOA
-#define S1_Pin LL_GPIO_PIN_4
-#define S1_GPIO_Port GPIOA
-#define S2_Pin LL_GPIO_PIN_5
-#define S2_GPIO_Port GPIOA
-#define S3_Pin LL_GPIO_PIN_6
-#define S3_GPIO_Port GPIOA
-#define S4_Pin LL_GPIO_PIN_7
-#define S4_GPIO_Port GPIOA
-#define INV2_Pin LL_GPIO_PIN_1
-#define INV2_GPIO_Port GPIOB
-#define INV1_Pin LL_GPIO_PIN_3
-#define INV1_GPIO_Port GPIOB
 #ifndef NVIC_PRIORITYGROUP_0
 #define NVIC_PRIORITYGROUP_0         ((uint32_t)0x00000007) /*!< 0 bit  for pre-emption priority,
                                                                  4 bits for subpriority */

@@ -90,7 +90,7 @@ __STATIC_INLINE void LL_FLASH_ClearFlag_EOP(FLASH_TypeDef *FLASHx)
  *            @arg @ref FLASH_TYPEERASE_PAGES         PAGES Erase
  *            @arg @ref FLASH_TYPEERASE_MASSERASE      FLASH Write protected error flag
  * @retval none*/
-__STATIC_INLINE void LL_FLASH_DisenableErase(FLASH_TypeDef *FLASHx, uint32_t FLASH_TYPEERASE)
+__STATIC_INLINE void LL_FLASH_DisableErase(FLASH_TypeDef *FLASHx, uint32_t FLASH_TYPEERASE)
 {
   CLEAR_BIT(FLASHx->CR, FLASH_TYPEERASE);
 }
@@ -101,7 +101,7 @@ __STATIC_INLINE void LL_FLASH_EnableProgram(FLASH_TypeDef *FLASHx)
   SET_BIT(FLASHx->CR, FLASH_CR_PG);
 }
 /*DisenableProgram*/
-__STATIC_INLINE void LL_FLASH_DisenableProgram(FLASH_TypeDef *FLASHx)
+__STATIC_INLINE void LL_FLASH_DisableProgram(FLASH_TypeDef *FLASHx)
 {
   CLEAR_BIT(FLASHx->CR, FLASH_CR_PG);
 }

@@ -4,7 +4,9 @@
 void LL_FLASH_Wait_for_Busy()
 {
         while (LL_FLASH_IsActiveFlag_BSY(FLASH))
-                LL_mDelay(1);
+        {
+                __NOP();
+        }
 }
 ErrorStatus LL_FLASH_Program_TwoBtye(uint32_t flash_addr, uint16_t data)
 {
@@ -17,16 +19,20 @@ ErrorStatus LL_FLASH_Program_TwoBtye(uint32_t flash_addr, uint16_t data)
         LL_FLASH_Wait_for_Busy();
 
         if (LL_FLASH_IsActiveFlag_EOP(FLASH))
+        {
                 LL_FLASH_ClearFlag_EOP(FLASH);
+        }
         else
+        {
                 return ERROR;
-        LL_FLASH_DisenableProgram(FLASH);
+        }
+        LL_FLASH_DisableProgram(FLASH);
         return SUCCESS;
 }
 
 ErrorStatus LL_Flash_Unlock(void)
 {
-        LL_FLASH_Wait_for_Busy();
+   //     LL_FLASH_Wait_for_Busy();
         if (LL_FLASH_LockState(FLASH))
         {
                 LL_FLASH_SetKey(FLASH, FLASH_KEY1);
@@ -50,7 +56,7 @@ ErrorStatus LL_Flash_PageErase(uint32_t page_addr)
         {
                 return ERROR;
         }
-        LL_FLASH_DisenableErase(FLASH, FLASH_CR_PER);
+        LL_FLASH_DisableErase(FLASH, FLASH_CR_PER);
         return SUCCESS;
 }
 
@@ -69,6 +75,6 @@ ErrorStatus LL_Flash_MassErase(void)
         {
                 return ERROR;
         }
-        LL_FLASH_DisenableErase(FLASH, FLASH_CR_MER);
+        LL_FLASH_DisableErase(FLASH, FLASH_CR_MER);
         return SUCCESS;
 }
