@@ -1,9 +1,9 @@
-../Core/Src/main.c:317:6:SystemClock_Config	8	static
-../Core/Src/main.c:351:6:runApp	0	static,ignoring_inline_asm
-../Core/Src/main.c:382:9:getch	0	static
-../Core/Src/main.c:391:6:putch	0	static
-../Core/Src/main.c:399:9:verifySpace	8	static
-../Core/Src/main.c:409:6:bgetNch	8	static
-../Core/Src/main.c:417:6:system_init	0	static
+../Core/Src/main.c:312:6:SystemClock_Config	8	static
+../Core/Src/main.c:346:6:runApp	0	static,ignoring_inline_asm
+../Core/Src/main.c:377:9:getch	0	static
+../Core/Src/main.c:386:6:putch	0	static
+../Core/Src/main.c:394:9:verifySpace	8	static
+../Core/Src/main.c:404:6:bgetNch	8	static
+../Core/Src/main.c:412:6:system_init	0	static
 ../Core/Src/main.c:88:5:main	56	static
-../Core/Src/main.c:450:6:Error_Handler	0	static,ignoring_inline_asm
+../Core/Src/main.c:445:6:Error_Handler	0	static,ignoring_inline_asm

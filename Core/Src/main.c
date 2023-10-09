@@ -103,7 +103,6 @@ int main(void)
 
     /* SysTick_IRQn interrupt configuration */
     NVIC_SetPriority(SysTick_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 15, 0));
-
     /* USER CODE BEGIN Init */
 
     /* USER CODE END Init */
@@ -117,19 +116,22 @@ int main(void)
 
     /* Initialize all configured peripherals */
     /* USER CODE BEGIN 2 */
-
+    G_SR = (__IO uint32_t *)(USART2_BASE);
+    G_DR = (__IO uint32_t *)(USART2_BASE + 4);
+    P_SR = (__IO uint32_t *)(USART3_BASE);
+    P_DR = (__IO uint32_t *)(USART3_BASE + 4);
     LL_Flash_Unlock();
 
-    uint8_t check;
-    check = LL_RCC_IsActiveFlag_SFTRST();
-    LL_RCC_ClearResetFlags();
-
-    if (check)
+    if (LL_RCC_IsActiveFlag_SFTRST() == 0)
     {
         LL_mDelay(150);
-        if (0xF0 != (GPIOA->IDR & 0xF1))
+        if (0xF0 != ((uint8_t)(GPIOA->IDR) & 0xF1))
+        {
             runApp();
+        }
     }
+    LL_RCC_ClearResetFlags();
+
     LED = 1;
     uint8_t ch = 0;
     uint8_t lastCh = 0;
@@ -178,13 +180,6 @@ int main(void)
             G_DR = (__IO uint32_t *)(USART1_BASE + 4);
             P_SR = (__IO uint32_t *)(USART1_BASE);
             P_DR = (__IO uint32_t *)(USART1_BASE + 4);
-        }
-        else
-        {
-            G_SR = (__IO uint32_t *)(USART2_BASE);
-            G_DR = (__IO uint32_t *)(USART2_BASE + 4);
-            P_SR = (__IO uint32_t *)(USART3_BASE);
-            P_DR = (__IO uint32_t *)(USART3_BASE + 4);
         }
 
         ch = getch();
@@ -268,7 +263,7 @@ int main(void)
                     data |= *bufPtr++ << 8;
                     // FLASH_ProgramHalfWord((uint32_t)memAddress, data);
                     LL_FLASH_Program_TwoBtye((uint32_t)memAddress, data);
-                    memAddress +=2;
+                    memAddress += 2;
                     count--;
                 }
             }
