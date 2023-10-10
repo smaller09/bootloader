@@ -1,9 +1,9 @@
-../Core/Src/main.c:312:6:SystemClock_Config	5
-../Core/Src/main.c:346:6:runApp	2
-../Core/Src/main.c:377:9:getch	2
-../Core/Src/main.c:386:6:putch	2
+../Core/Src/main.c:315:6:SystemClock_Config	5
+../Core/Src/main.c:349:6:runApp	2
+../Core/Src/main.c:380:9:getch	2
+../Core/Src/main.c:387:6:putch	2
 ../Core/Src/main.c:394:9:verifySpace	2
 ../Core/Src/main.c:404:6:bgetNch	2
 ../Core/Src/main.c:412:6:system_init	1
-../Core/Src/main.c:88:5:main	29
+../Core/Src/main.c:88:5:main	31
 ../Core/Src/main.c:445:6:Error_Handler	1

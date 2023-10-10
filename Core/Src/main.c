@@ -286,11 +286,14 @@ int main(void)
         break;
 
         case STK_READ_SIGN:
-
             NotSynced = verifySpace();
             putch(SIGNATURE_0);
             putch(SIGNATURE_1);
             putch(SIGNATURE_2);
+            break;
+
+        case STK_LEAVE_PROGMODE:
+            runApp();
             break;
 
         default:
@@ -377,18 +380,15 @@ void runApp()
 uint8_t getch(void)
 {
     while ((*G_SR & USART_SR_RXNE) == 0)
-    {
-    }
-
+        ;
     return *G_DR;
 }
 
 void putch(uint8_t byte)
 {
-    while ((*P_SR & USART_SR_TXE) == 0)
-    {
-    }
     *P_DR = byte;
+    while ((*P_SR & USART_SR_TXE) == 0)
+        ;
 }
 
 uint8_t verifySpace(void)
