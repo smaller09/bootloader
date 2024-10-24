@@ -29,6 +29,7 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 typedef void (*p_APP)(void);
+#define DEBUG
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -54,14 +55,19 @@ typedef void (*p_APP)(void);
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+union
+{
+    uint8_t buff_8[256];
+    uint16_t buff_16[128];
+} prog_data;
 
-uint8_t Buff[512];
-uint8_t LED = 0;
-__IO uint32_t *G_SR; // for getch
-__IO uint32_t *G_DR;
+uint32_t LED = 0;
 
-__IO uint32_t *P_SR; // for putch
-__IO uint32_t *P_DR;
+__IO uint32_t *G_SR = (__IO uint32_t *)(USART2_BASE); // for getch
+__IO uint32_t *G_DR = (__IO uint32_t *)(USART2_BASE + 4);
+
+__IO uint32_t *P_SR = (__IO uint32_t *)(USART3_BASE); // for putch
+__IO uint32_t *P_DR = (__IO uint32_t *)(USART3_BASE + 4);
 
 /* USER CODE END PV */
 
@@ -71,8 +77,8 @@ void SystemClock_Config(void);
 void runApp();
 uint8_t getch(void);
 void putch(uint8_t byte);
-uint8_t verifySpace(void);
-void bgetNch(uint8_t count);
+uint32_t verifySpace(void);
+void bgetNch(uint32_t count);
 void system_init(void);
 /* USER CODE END PFP */
 
@@ -87,6 +93,7 @@ void system_init(void);
  */
 int main(void)
 {
+
     /* USER CODE BEGIN 1 */
 
     /* USER CODE END 1 */
@@ -94,15 +101,15 @@ int main(void)
     /* MCU Configuration--------------------------------------------------------*/
 
     /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-
-    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_AFIO | LL_APB2_GRP1_PERIPH_USART1 | LL_APB2_GRP1_PERIPH_GPIOA | LL_APB2_GRP1_PERIPH_GPIOB);
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR | LL_APB1_GRP1_PERIPH_USART2 | LL_APB1_GRP1_PERIPH_USART3);
+    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_AFIO);
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
 
     /* System interrupt init*/
     NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 
     /* SysTick_IRQn interrupt configuration */
     NVIC_SetPriority(SysTick_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 15, 0));
+
     /* USER CODE BEGIN Init */
 
     /* USER CODE END Init */
@@ -116,10 +123,7 @@ int main(void)
 
     /* Initialize all configured peripherals */
     /* USER CODE BEGIN 2 */
-    G_SR = (__IO uint32_t *)(USART2_BASE);
-    G_DR = (__IO uint32_t *)(USART2_BASE + 4);
-    P_SR = (__IO uint32_t *)(USART3_BASE);
-    P_DR = (__IO uint32_t *)(USART3_BASE + 4);
+
     LL_Flash_Unlock();
 
     if (LL_RCC_IsActiveFlag_SFTRST() == 0)
@@ -131,41 +135,50 @@ int main(void)
         }
     }
     LL_RCC_ClearResetFlags();
-
-    LED = 1;
+    /*
+        G_SR = (__IO uint32_t *)(USART2_BASE);
+        G_DR = (__IO uint32_t *)(USART2_BASE + 4);
+        P_SR = (__IO uint32_t *)(USART3_BASE);
+        P_DR = (__IO uint32_t *)(USART3_BASE + 4);
+    */
     uint8_t ch = 0;
     uint8_t lastCh = 0;
-    uint8_t NotSynced = 1;
+    uint32_t NotSynced = 1;
     uint32_t address = 0;
-    uint8_t *bufPtr;
-    uint16_t length;
-    uint16_t count;
-    uint16_t data;
-    uint8_t *memAddress;
-    uint8_t Port;
+
+    uint32_t length;
+    uint32_t count;
+
+    LED = 1;
     /* USER CODE END 2 */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while (1)
     {
-        /* USER CODE END WHILE */
+/* USER CODE END WHILE */
 
-        /* USER CODE BEGIN 3 */
-
+/* USER CODE BEGIN 3 */
+#ifdef DEBUG
+        uint32_t Port = 1;
+#endif
         while (NotSynced)
         {
 
             if (USART2->SR & USART_SR_RXNE)
             {
                 ch = USART2->DR;
+#ifdef DEBUG
                 Port = 0;
+#endif
             }
+#ifdef DEBUG
             if (USART1->SR & USART_SR_RXNE)
             {
-                ch = USART2->DR;
+                ch = USART1->DR;
                 Port = 1;
             }
+#endif
             if ((lastCh == STK_GET_SYNC) && (ch == CRC_EOP))
             {
                 NotSynced = 0;
@@ -173,15 +186,15 @@ int main(void)
             }
             lastCh = ch;
         }
-
-        if (Port)
+#ifdef DEBUG
+        if (Port == 0)
         {
-            G_SR = (__IO uint32_t *)(USART1_BASE);
-            G_DR = (__IO uint32_t *)(USART1_BASE + 4);
-            P_SR = (__IO uint32_t *)(USART1_BASE);
-            P_DR = (__IO uint32_t *)(USART1_BASE + 4);
+            G_SR = (__IO uint32_t *)(USART2_BASE);
+            G_DR = (__IO uint32_t *)(USART2_BASE + 4);
+            P_SR = (__IO uint32_t *)(USART3_BASE);
+            P_DR = (__IO uint32_t *)(USART3_BASE + 4);
         }
-
+#endif
         ch = getch();
         switch (ch)
         {
@@ -226,14 +239,14 @@ int main(void)
         case STK_PROG_PAGE:
         {
 
-            memAddress = (uint8_t *)(address + 0x08000000);
+            uint16_t *progAddress = (uint16_t *)(address + 0x08000000);
 
             length = getch() << 8; /* getlen() */
             length |= getch();
             getch(); // discard flash/eeprom byte
             // While that is going on, read in page contents
             count = length;
-            bufPtr = Buff;
+            uint8_t *bufPtr = prog_data.buff_8;
             do
             {
                 *bufPtr++ = getch();
@@ -243,27 +256,23 @@ int main(void)
                 *bufPtr = 0xFF;
             }
             count = length + 1;
-            count /= 2;
+            count >>= 1;
             NotSynced = verifySpace();
 
-            if (((uint32_t)memAddress < FLASH_SIZE) && ((uint32_t)memAddress >= APP_ADDR))
+            if (((uint32_t)progAddress < FLASH_SIZE) && ((uint32_t)progAddress >= APP_ADDR))
             {
 
-                if (((uint32_t)memAddress & 0x000003FF) == 0)
+                if (((uint32_t)progAddress & 0x000003FF) == 0)
                 {
                     // At page start so erase it
                     // FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
                     // FLASH_ErasePage((uint32_t)memAddress);
-                    LL_Flash_PageErase((uint32_t)memAddress);
+                    LL_Flash_PageErase((uint32_t)progAddress);
                 }
-                bufPtr = Buff;
+                uint16_t *bufPtr = prog_data.buff_16;
                 while (count)
                 {
-                    data = *bufPtr++;
-                    data |= *bufPtr++ << 8;
-                    // FLASH_ProgramHalfWord((uint32_t)memAddress, data);
-                    LL_FLASH_Program_TwoBtye((uint32_t)memAddress, data);
-                    memAddress += 2;
+                    LL_FLASH_Program_TwoBtye(progAddress++, bufPtr++);
                     count--;
                 }
             }
@@ -272,7 +281,7 @@ int main(void)
 
         case STK_READ_PAGE:
         {
-            memAddress = (uint8_t *)(address + 0x08000000);
+            uint8_t *readAddress = (uint8_t *)(address + 0x08000000);
             // READ PAGE - we only read flash
             length = getch() << 8; /* getlen() */
             length |= getch();
@@ -280,7 +289,7 @@ int main(void)
             NotSynced = verifySpace();
             do
             {
-                putch(*memAddress++);
+                putch(*readAddress++);
             } while (--length);
         }
         break;
@@ -357,15 +366,11 @@ void runApp()
         application = (p_APP)jump_address;
         __disable_irq();
 
-        /* Force reset of USART clock */
+        /* Force reset  */
         LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_USART2 | LL_APB1_GRP1_PERIPH_USART3);
-
-        /* Release reset of USART clock */
-        LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_USART2 | LL_APB1_GRP1_PERIPH_USART3);
-
         LL_APB2_GRP1_ForceReset(LL_APB2_GRP1_PERIPH_GPIOA | LL_APB2_GRP1_PERIPH_GPIOB | LL_APB2_GRP1_PERIPH_USART1);
+        LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_USART2 | LL_APB1_GRP1_PERIPH_USART3);
         LL_APB2_GRP1_ReleaseReset(LL_APB2_GRP1_PERIPH_GPIOA | LL_APB2_GRP1_PERIPH_GPIOB | LL_APB2_GRP1_PERIPH_USART1);
-
         SysTick->CTRL = 0;
         SysTick->LOAD = 0;
         SysTick->VAL = 0;
@@ -391,17 +396,18 @@ void putch(uint8_t byte)
         ;
 }
 
-uint8_t verifySpace(void)
+uint32_t verifySpace(void)
 {
-    if (getch() != CRC_EOP)
+    if (getch() == CRC_EOP)
     {
-        return 1;
+        putch(STK_INSYNC);
+        return 0;
     }
-    putch(STK_INSYNC);
-    return 0;
+
+    return 1;
 }
 
-void bgetNch(uint8_t count)
+void bgetNch(uint32_t count)
 {
     do
     {

@@ -118,6 +118,6 @@ __STATIC_INLINE void LL_FLASH_SetKey(FLASH_TypeDef *FLASHx, uint32_t key)
 
 ErrorStatus LL_Flash_Unlock(void);
 ErrorStatus LL_Flash_PageErase(uint32_t page_addr);
-ErrorStatus LL_FLASH_Program_TwoBtye(uint32_t flash_addr, uint16_t data);
+ErrorStatus LL_FLASH_Program_TwoBtye(__IO uint16_t *flash_addr, uint16_t *data);
 ErrorStatus LL_Flash_MassErase(void);
 #endif

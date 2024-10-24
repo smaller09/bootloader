@@ -8,13 +8,13 @@ void LL_FLASH_Wait_for_Busy()
                 __NOP();
         }
 }
-ErrorStatus LL_FLASH_Program_TwoBtye(uint32_t flash_addr, uint16_t data)
+ErrorStatus LL_FLASH_Program_TwoBtye(__IO uint16_t *flash_addr, uint16_t *data)
 {
         LL_FLASH_Wait_for_Busy();
 
         LL_FLASH_EnableProgram(FLASH);
 
-        *(__IO uint16_t *)(flash_addr) = data;
+        *flash_addr = *data;
 
         LL_FLASH_Wait_for_Busy();
 
