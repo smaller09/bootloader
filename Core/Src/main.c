@@ -43,8 +43,10 @@ typedef void (*p_APP)(void);
 
 #define SIGNATURE_3 0x97
 #define SIGNATURE_4 0x02
+
 #define APP_ADDR 0x08000800
-#define FLASH_SIZE 0x08020000
+
+#define FLASH_TOP 0x08020000
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -57,8 +59,8 @@ typedef void (*p_APP)(void);
 /* USER CODE BEGIN PV */
 union
 {
-    uint8_t buff_8[256];
-    uint16_t buff_16[128];
+    uint8_t buff_8[1024];
+    uint16_t buff_16[512];
 } prog_data;
 
 uint32_t LED = 0;
@@ -145,9 +147,7 @@ int main(void)
     uint8_t lastCh = 0;
     uint32_t NotSynced = 1;
     uint32_t address = 0;
-
     uint32_t length;
-    uint32_t count;
 
     LED = 1;
     /* USER CODE END 2 */
@@ -227,6 +227,7 @@ int main(void)
             address = getch();
             address = (address & 0xff) | (getch() << 8);
             address <<= 1;
+            address += 0x08000000;
             NotSynced = verifySpace();
             break;
 
@@ -239,27 +240,24 @@ int main(void)
         case STK_PROG_PAGE:
         {
 
-            uint16_t *progAddress = (uint16_t *)(address + 0x08000000);
+            __IO uint16_t *progAddress = (uint16_t *)address;
 
             length = getch() << 8; /* getlen() */
             length |= getch();
             getch(); // discard flash/eeprom byte
             // While that is going on, read in page contents
-            count = length;
+            uint32_t count = length;
             uint8_t *bufPtr = prog_data.buff_8;
             do
             {
                 *bufPtr++ = getch();
             } while (--count);
-            if (length & 1)
-            {
-                *bufPtr = 0xFF;
-            }
+
             count = length + 1;
             count >>= 1;
             NotSynced = verifySpace();
 
-            if (((uint32_t)progAddress < FLASH_SIZE) && ((uint32_t)progAddress >= APP_ADDR))
+            if (((uint32_t)progAddress < FLASH_TOP) && ((uint32_t)progAddress >= APP_ADDR))
             {
 
                 if (((uint32_t)progAddress & 0x000003FF) == 0)
@@ -281,7 +279,7 @@ int main(void)
 
         case STK_READ_PAGE:
         {
-            uint8_t *readAddress = (uint8_t *)(address + 0x08000000);
+            __IO uint8_t *progAddress = (uint8_t *)(address);
             // READ PAGE - we only read flash
             length = getch() << 8; /* getlen() */
             length |= getch();
@@ -289,7 +287,7 @@ int main(void)
             NotSynced = verifySpace();
             do
             {
-                putch(*readAddress++);
+                putch(*progAddress++);
             } while (--length);
         }
         break;
@@ -430,16 +428,19 @@ void system_init(void)
     GPIOA->BSRR = 0x000000F1;
     GPIOA->CRL = (GPIOA->CRL & 0x0000FF00) | 0x88880028; // LED and inputs
 
+#ifdef DEBUG
     USART1->BRR = 36000000 / 57600;
     USART1->CR1 = 0x200C;
+#endif
+
     USART2->BRR = 36000000 / 57600;
     USART2->CR1 = 0x200C;
-    // USART2->CR2 = 0;
-    // USART2->CR3 = 0;
+    //    USART2->CR2 = 0;
+    //    USART2->CR3 = 0;
     USART3->BRR = 36000000 / 57600;
     USART3->CR1 = 0x200C;
-    USART3->CR2 = 0;
-    USART3->CR3 = 0;
+    //    USART3->CR2 = 0;
+    //    USART3->CR3 = 0;
 }
 
 /* USER CODE END 4 */
